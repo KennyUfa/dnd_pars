@@ -1,3 +1,5 @@
+import os
+import time
 from pprint import pprint
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
@@ -30,7 +32,7 @@ def parser_site(filename):
 
 def extract(html_link):
     html = urlopen(html_link)
-    soup = BeautifulSoup(html,"html.parser")
+    soup = BeautifulSoup(html, "html.parser")
     data = soup.find('ul', attrs={'class': "params"}).find_all('li')
     card_spell = ''
     for i in data:
@@ -41,7 +43,33 @@ def extract(html_link):
     return card_spell
 
 
-def save_html_in_pc(html_file, name_file):
-    with open(f"{name_file}.html", "w") as file:
+def save_html_in_pc(levl, champ, html_file, name_file):
+    y = os.path.normpath(f'spell\{champ}\{levl}')
+    x = os.makedirs(y, exist_ok=True)
+
+    with open(os.path.join(y, f"{str(name_file)}.html"), 'w',encoding="utf-8") as file:
         file.write(html_file)
-    return
+
+
+def cpell_pars():
+    name_champ = str
+    levl = int
+    name_cast = str
+    first_step = parser_site("Заклинания D&D 5 _ Сортировка по классу.html")
+    for k, v in first_step.items():
+        name_champ = k
+        for q, w in sorted(v.items()):
+            levl = q
+            for i in w:
+                try:
+                    file_pars = extract(i["url_spell"])
+                    print(f"levl={levl}, champ={name_champ}, html_file={file_pars}, name_file={i['name']}")
+                    save_html_in_pc(levl=levl, champ=name_champ, html_file=file_pars,
+                                    name_file=i['name'].replace('/', '-').replace(r"\t", ''))
+                    time.sleep(1)
+                except Exception as exs:
+                    print(f"pars = {exs.args},  {file_pars}")
+
+
+
+cpell_pars()
